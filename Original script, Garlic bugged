@@ -1,0 +1,100 @@
+Scriptname TlmFoodDisplay extends ObjectReference
+
+Actor Property PlayerRef Auto
+Formlist Property AllowedItems Auto
+
+ObjectReference[] Property DisplayTrigger Auto
+
+ObjectReference[] Property GourdDisplay Auto
+ObjectReference[] Property GarlicDisplay Auto
+ObjectReference[] Property TomatoDisplay Auto
+ObjectReference[] Property FirewoodDisplay Auto
+ObjectReference[] Property WheatDisplay Auto
+ObjectReference[] Property LeekDisplay Auto
+ObjectReference[] Property PotatoDisplay Auto
+ObjectReference[] Property CabbageDisplay Auto
+
+Form Property FoodGourd Auto
+Form Property Garlic Auto
+Form Property FoodTomato Auto
+Form Property Firewood01 Auto
+Form Property Wheat Auto
+Form Property FoodLeek Auto
+Form Property FoodPotato Auto
+Form Property FoodCabbage Auto
+
+Event OnInit()
+    FoodGourd = Game.GetFormFromFile(0x10D666, "Skyrim.esm")
+    Garlic = Game.GetFormFromFile(0x034D22, "Skyrim.esm")
+    FoodTomato = Game.GetFormFromFile(0x064B42, "Skyrim.esm")
+    Firewood01 = Game.GetFormFromFile(0x06F993, "Skyrim.esm")
+    Wheat = Game.GetFormFromFile(0x04B0BA, "Skyrim.esm")
+    FoodLeek = Game.GetFormFromFile(0x0669A5, "Skyrim.esm")
+    FoodPotato = Game.GetFormFromFile(0x064B41, "Skyrim.esm")
+    FoodCabbage = Game.GetFormFromFile(0x064B3F, "Skyrim.esm")
+EndEvent
+
+Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    If !AllowedItems.HasForm(akBaseItem)
+        akSourceContainer.Additem(akBaseItem, aiItemCount, true)
+        Self.RemoveItem(akBaseItem, aiItemCount, true)
+        Debug.Notification("You can only put items in here that can be sold in the shop.")
+    EndIf
+    
+    UpdateDisplays(akBaseItem)
+EndEvent
+
+Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    UpdateDisplays(akBaseItem)
+EndEvent
+
+Function UpdateDisplays(Form itemType)
+    ObjectReference[] displays
+    ObjectReference TriggerAll
+    
+    If itemType == FoodGourd
+        displays = GourdDisplay
+        TriggerAll = DisplayTrigger[0]
+    ElseIf itemType == Garlic
+        displays = GarlicDisplay
+        TriggerAll = DisplayTrigger[1]
+    ElseIf itemType == FoodTomato
+        displays = TomatoDisplay
+        TriggerAll = DisplayTrigger[2]
+    ElseIf itemType == Firewood01
+        displays = FirewoodDisplay
+        TriggerAll = DisplayTrigger[3]
+    ElseIf itemType == Wheat
+        displays = WheatDisplay
+        TriggerAll = DisplayTrigger[4]
+    ElseIf itemType == FoodLeek
+        displays = LeekDisplay
+        TriggerAll = DisplayTrigger[5]
+    ElseIf itemType == FoodPotato
+        displays = PotatoDisplay
+        TriggerAll = DisplayTrigger[6]
+    ElseIf itemType == FoodCabbage
+        displays = CabbageDisplay
+        TriggerAll = DisplayTrigger[7]
+    Else
+        Return
+    EndIf
+    
+    Int itemCount = Self.GetItemCount(itemType)
+    
+    Int i = 0
+	If 0 > displays.Length
+		TriggerAll.Enable()
+	Else
+		TriggerAll.Disable()
+	EndIf
+
+    While i < displays.Length
+        If i < itemCount
+            displays[i].Enable()
+        Else
+            displays[i].Disable()
+        EndIf
+    I +=1
+    EndWhile
+EndFunction
